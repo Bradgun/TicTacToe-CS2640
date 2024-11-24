@@ -7,6 +7,16 @@
 #Alternating loop for player turns, check for correct input
 
 .data
+    Xmark: .asciiz "X"
+    Omark: .asciiz "O"
+    player1Win: .asciiz "Player 1 Wins!"
+    player2Win: .asciiz "Player 2 Wins!"
+    instructions: .asciiz "Player 1 is X and Player 2 is O. X (Player 1) goes first. Players take turn placing X's and O's until they reach three in a row (horizontally, vertically, or diagonally) to win or fill all the spaced to draw."
+    playAgain: .asciiz "Do you wish to play again?"
 
 .text
 main:
+    #print instructions to users
+    li $v0, 4
+    la $a0, instructions
+    syscall

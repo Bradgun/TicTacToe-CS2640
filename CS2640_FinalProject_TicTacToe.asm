@@ -4,6 +4,7 @@
 #Final Project: Tic Tac Toe
 #Goal/Objective: Create a functional and good looking Tic Tac Toe game
 #Requirements: Good UI, update board with each move, winning/ending condition (3 in a row or draw),
+    #For board, label each tile with numbers 1-9, and replace with X/O depending on user input
 #Alternating loop for player turns, check for correct input
 
 .data
@@ -22,3 +23,47 @@ main:
     li $v0, 4
     la $a0, instructions
     syscall
+
+    # Loop counter
+    li $s0, 0
+
+    # Jump to label player1 to begin game
+    j player1
+    
+player1:
+    # Player 1 input (integer)
+    li $v0, 5
+    syscall
+
+    ### --- Implement a correct input checker here --- ###
+    ### --- Update the board and check for winning condition if it passes the check --- ###
+
+    # Increment loop counter
+    addi $s0, 1
+
+    ### --- Draw condition will be implemented here --- ###
+
+    # Player 2's turn
+    j player2
+
+player2:
+    # Player 2 input (integer)
+    li $v0, 5
+    syscall
+
+    ### --- Implement a correct input checker here --- ###
+    ### --- Update the board and check for winning condition if it passes the check --- ###
+
+    # Increment loop counter
+    addi $s0, 1
+
+    ### -- Draw condition is not required to be implemented here since player 1 starts -- ##
+
+    # Player 1's turn
+    j player1
+
+exit:
+    # exit program
+    li $v0, 10
+    syscall
+    

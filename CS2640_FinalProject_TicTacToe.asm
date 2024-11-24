@@ -39,7 +39,7 @@ player1:
     ### --- Update the board and check for winning condition if it passes the check --- ###
 
     # Increment loop counter
-    addi $s0, 1
+    add $s0, $s0, 1
 
     ### --- Draw condition will be implemented here --- ###
 

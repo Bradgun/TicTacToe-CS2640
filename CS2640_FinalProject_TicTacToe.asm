@@ -67,6 +67,7 @@
     	playAgain: .asciiz "\nDo you wish to play again?: "
     	newline: .asciiz "\n"
     	wrongPosition: .asciiz "\nSpot already taken. Please choose a different spot"
+    	drawMsg: .asciiz "\n It's a Draw!"
 
 .text
 main:
@@ -129,7 +130,13 @@ player1:
 	add $s0, $s0, 1
 
 	### --- Draw condition will be implemented here --- ###
-
+	#total possible moves to be done
+	li $t0, 9
+	
+	#when total possible moves have been done and nobody wins, branch to drawCondition
+	#and end the game			
+	beq $s0, $t0, drawCondition
+	
 	#Player 2's turn
 	j player2
 
@@ -171,8 +178,6 @@ player2:
 	#Increment loop counter
 	add $s0, $s0, 1
 
-	### --- Draw condition will be implemented here --- ###
-
 	#Player 1's turn
 	j player1
 
@@ -194,6 +199,19 @@ wrongPosition2:
 	
 	#jump back to player2 label
 	j player2
+	
+drawCondition:
+	#output the message for the draw
+	li $v0, 4
+	la $a0, drawMsg
+	syscall
+	
+	#output the message to ask user if they want to play again or to exit
+	li $v0, 4
+	la $a0, playAgain
+	syscall
+	
+	
 
 #Exit Program
 exit:

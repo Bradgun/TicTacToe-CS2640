@@ -64,10 +64,11 @@
     	instructions: .asciiz "Player 1 is X and Player 2 is O. X (Player 1) goes first. \nPlayers take turn placing X's and O's until they reach three in a row (horizontally, vertically, or diagonally) to win or fill all the spaced to draw. \nEnter a number 1-9 that corresponds to the position you wish to put your piece in."
     	prompt1: .asciiz "\nPlayer 1's move: " #tell player 1 it's their turn
     	prompt2: .asciiz "\nPlayer 2's move: " #tell player 2 it's their turn
-    	playAgain: .asciiz "\nDo you wish to play again?: "
+    	playAgain: .asciiz "\nDo you wish to play again? (type 1 for yes, or 2 to exit): "
     	newline: .asciiz "\n"
     	wrongPosition: .asciiz "\nSpot already taken. Please choose a different spot"
     	drawMsg: .asciiz "\n It's a Draw!"
+    	invalidPlayAgain: .asciiz "\nInvalid: Please enter 1 to play again or enter 2 to quit."
 
 .text
 main:
@@ -202,14 +203,31 @@ wrongPosition2:
 	
 drawCondition:
 	#output the message for the draw
-	li $v0, 4
-	la $a0, drawMsg
-	syscall
+	printStr drawMsg
 	
 	#output the message to ask user if they want to play again or to exit
-	li $v0, 4
-	la $a0, playAgain
+	printStr playAgain
+	b exitMenu
+	
+exitMenu:
+	#get user input
+	li $v0, 5
 	syscall
+	move $t1, $v0
+	
+	#1 = yes, 2 = exit
+	li $t2, 1
+	beq $t1, $t2, resetGame
+	
+	li $t2, 2
+	beq $t1, $t2, exit
+	
+	#if input is invalid
+	printStr invalidPlayAgain
+	j exitMenu
+
+resetGame:
+	
 	
 	
 

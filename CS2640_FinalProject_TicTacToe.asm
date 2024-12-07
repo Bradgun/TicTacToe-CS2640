@@ -1,9 +1,9 @@
 # Bradley Gunawan, Elsa Zheng, Joe Jhenson Ramos, Kenneth Wang, Manuel Abanto
-#Group 4
+# Group 4
 # CS 2640.02 with Professor Cariaga
 # Final Project: Tic Tac Toe
-#Goal/Objective: Create a functional and good looking Tic Tac Toe game
-#Requirements: Good UI, update board with each move, winning/ending condition (3 in a row or draw),
+# Goal/Objective: Create a functional and good looking Tic Tac Toe game
+# Requirements: Good UI, update board with each move, winning/ending condition (3 in a row or draw),
 # For board, label each tile with numbers 1-9, and replace with X/O depending on user input
 # Alternating loop for player turns, check for correct input
 # For board, implement with a 1d array with 9 * 4 byte representing a 3x3 board
@@ -180,9 +180,10 @@
     	newline: .asciiz "\n"
     	board_newline: .asciiz "\n ---+---+--- \n"
     	board_splitor: .asciiz "|"
-    	wrongPosition: .asciiz "\nSpot already taken. Please choose a different spot"
+    	wrongPosition: .asciiz "\nSpot already taken or invalid input. Please enter a different value"
     	drawMsg: .asciiz "\n It's a Draw!"
     	invalidPlayAgain: .asciiz "\nInvalid: Please enter 1 to play again or enter 2 to quit."
+		invalidPosition: .asciiz "\nInvalid Position. Please choose a number from (1-9)"
 
 .text
 main:
@@ -216,8 +217,12 @@ player1:
 	li $v0, 5
 	syscall
 	move $t0, $v0
+
+	#check if input value is valid, 1-9
+	blt $t0, 1, wrongPosition1
+	bgt $t0, 9, wrongPosition1
 	
-	#loads base address of array into $s0
+	#loads base address of array into $s3
 	la $s3, board
 	
 	#calculate offset
@@ -265,8 +270,12 @@ player2:
 	li $v0, 5
 	syscall
 	move $t0, $v0
+
+	#check if input value is valid, 1-9
+	blt $t0, 1, wrongPosition2
+	bgt $t0, 9, wrongPosition2
 	
-	#loads base address of array into $s0
+	#loads base address of array into $s3
 	la $s3, board
 	
 	#calculate offset
@@ -296,6 +305,24 @@ player2:
 	#Player 1's turn
 	j player1
 
+
+#if player 1 inputs a number less than 1 or greater than 9
+invalidPosition1:
+	#print error message
+	li $v0, 4
+	la $a0, invalidPosition
+	syscall
+
+	j player1
+
+#if player 2 inputs a number less than 1 or greater than 9
+invalidPosition2:
+	#print error message
+	li $v0, 4
+	la $a0, invalidPosition
+	syscall
+
+	j player2
 
 wrongPosition1:
 	#inform user of error

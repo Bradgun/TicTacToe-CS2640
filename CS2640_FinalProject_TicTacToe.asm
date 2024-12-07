@@ -227,9 +227,16 @@ exitMenu:
 	j exitMenu
 
 resetGame:
-	
-	
-	
+	# reset the board all to 0's
+	la $t0, board	# load the base adress of the board
+	li $t1, 0	# value to reset (0 represents empthy)
+	li $t2, 9	# the number of positions to reset
+
+resetLoop:
+	sw $t1, 0($t0)		# store 0 in the current position
+	addi $t0, $t0, 4	# move to the next position
+	subi $t2, $t2, 1	# decrement counter
+	bnez $t2, resetLoop	# continue doing this until all positions (aka 1-9) are reset
 
 #Exit Program
 exit:

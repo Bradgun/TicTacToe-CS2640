@@ -238,6 +238,10 @@ resetLoop:
 	subi $t2, $t2, 1	# decrement counter
 	bnez $t2, resetLoop	# continue doing this until all positions (aka 1-9) are reset
 
+	li $s0, 0	# reset the move counter (aka number of moves made) to 0
+
+	j player1	#resets the game, starts at the turn of player 1
+
 #Exit Program
 exit:
 	li $v0, 10

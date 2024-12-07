@@ -180,10 +180,10 @@
     	newline: .asciiz "\n"
     	board_newline: .asciiz "\n ---+---+--- \n"
     	board_splitor: .asciiz "|"
-    	wrongPosition: .asciiz "\nSpot already taken or invalid input. Please enter a different value"
+    	takenPosition: .asciiz "\nSpot already taken. Please enter a different value."
     	drawMsg: .asciiz "\n It's a Draw!"
     	invalidPlayAgain: .asciiz "\nInvalid: Please enter 1 to play again or enter 2 to quit."
-		invalidPosition: .asciiz "\nInvalid Position. Please choose a number from (1-9)"
+	invalidPosition: .asciiz "\nInvalid Position. Please choose a number from (1-9)"
 
 .text
 main:
@@ -219,8 +219,8 @@ player1:
 	move $t0, $v0
 
 	#check if input value is valid, 1-9
-	blt $t0, 1, wrongPosition1
-	bgt $t0, 9, wrongPosition1
+	blt $t0, 1, invalidPosition1
+	bgt $t0, 9, invalidPosition1
 	
 	#loads base address of array into $s3
 	la $s3, board
@@ -237,8 +237,8 @@ player1:
 	
 	#check that piece can be placed there
 	#jumps to wrongPostion1 label if position is taken
-	beq $t1, 1, wrongPosition1
-	beq $t1, 2, wrongPosition1
+	beq $t1, 1, takenPosition1
+	beq $t1, 2, takenPosition1
 	
 	#Update the board and check for winning condition if it passes the check
     	sw $s1, 0($s3)
@@ -272,8 +272,8 @@ player2:
 	move $t0, $v0
 
 	#check if input value is valid, 1-9
-	blt $t0, 1, wrongPosition2
-	bgt $t0, 9, wrongPosition2
+	blt $t0, 1, invalidPosition2
+	bgt $t0, 9, invalidPosition2
 	
 	#loads base address of array into $s3
 	la $s3, board
@@ -290,8 +290,8 @@ player2:
 	
 	#check that piece can be placed there
 	#jumps to wrongPosition2 label if position is taken
-	beq $t1, 1, wrongPosition2
-	beq $t1, 2, wrongPosition2
+	beq $t1, 1, takenPosition2
+	beq $t1, 2, takenPosition2
 	
 	#Update the board and check for winning condition if it passes the check
     	sw $s2, 0($s3)
@@ -324,19 +324,19 @@ invalidPosition2:
 
 	j player2
 
-wrongPosition1:
+takenPosition1:
 	#inform user of error
 	li $v0, 4
-	la $a0, wrongPosition
+	la $a0, takenPosition
 	syscall
 	
 	#jump back to player1 label
 	j player1
 	
-wrongPosition2:
+takenPosition2:
 	#inform user of error
 	li $v0, 4
-	la $a0, wrongPosition
+	la $a0, takenPosition
 	syscall
 	
 	#jump back to player2 label

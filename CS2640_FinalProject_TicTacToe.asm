@@ -236,7 +236,7 @@ player1:
 	lw $t1, 0($s3)
 	
 	#check that piece can be placed there
-	#jumps to wrongPostion1 label if position is taken
+	#jumps to takenPostion1 label if position is taken
 	beq $t1, 1, takenPosition1
 	beq $t1, 2, takenPosition1
 	
@@ -289,7 +289,7 @@ player2:
 	lw $t1, 0($s3)
 	
 	#check that piece can be placed there
-	#jumps to wrongPosition2 label if position is taken
+	#jumps to takenPosition2 label if position is taken
 	beq $t1, 1, takenPosition2
 	beq $t1, 2, takenPosition2
 	

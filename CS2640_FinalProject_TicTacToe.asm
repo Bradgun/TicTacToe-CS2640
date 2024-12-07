@@ -32,7 +32,7 @@
     	li $t1, 0                           # Initialize counter in $t1
    	loop:
     		lw $t2, 0($t0)                  # Load the value of the current element into $t2
-   		beq $t2, 0, printEmpty              # If the value is 0, print " "
+   		beq $t2, 0, printEmpty          # If the value is 0, print " "
     		beq $t2, 1, printX              # If the value is 1, print "X"
     		beq $t2, 2, printO              # If the value is 2, print "O"
     		cont:
@@ -41,19 +41,24 @@
     			beq $t1, 3, printNewline
     			beq $t1, 6, printNewline   
     			blt $t1, 9, loop            # If there are more elements, repeat the loop
+    		printStr board_splitor
     		b end                           # Exit after processing all cells
     			
     	printEmpty:
+    		printStr board_splitor
     		printStr empty
     		b cont
     	printX:
+    		printStr board_splitor
     		printStr Xmark
     		b cont
     	printO:
+    		printStr board_splitor
     		printStr Omark
     		b cont
     	printNewline:
-    		printStr newline
+    		printStr board_splitor
+    		printStr board_newline
     		b loop
     	end:
     	printStr newline
@@ -123,6 +128,38 @@
 	check_break:
 .end_macro
 	
+# Prints out a 3 x 3 grid filled in with 1 through 9 for instruction.    
+.macro printGrid
+	li $t0, 1                     	 	# Start with 1 (first number)
+	li $t1, 1                      		# Counter for position in grid
+
+	print_loop:
+		printStr board_splitor
+		printStr space
+   		move $a0, $t0                  # Move the current number to $a0 for printing
+    		li $v0, 1                      # Print integer
+    		syscall
+    		printStr space
+    		beq $t1, 3, print_end_row
+    		beq $t1, 6, print_end_row
+    		j continue_loop                
+
+	print_end_row:
+    		printStr board_splitor
+    		printStr board_newline        
+    		j continue_loop                # Continue with the next number
+
+	continue_loop:
+    		addi $t0, $t0, 1               # Increment the number to print
+    		addi $t1, $t1, 1               # Increment the position counter
+    		blt $t0, 10, print_loop        # Continue loop if $t0 < 10
+    		printStr board_splitor
+		printStr newline
+		printStr newline
+    	
+.end_macro
+
+
 
 .data
 	board: .word 0, 0, 0, 0, 0, 0, 0, 0, 0 	# Reserve 9 * 4 bytes (1D array for 3x3 board) 0: Empty, 1: X, 2: O
@@ -132,14 +169,17 @@
     	Xmark: .asciiz " X "
     	Omark: .asciiz " O "
     	empty: .asciiz "   "
+    	space: .asciiz " "
 
     	player1Win: .asciiz "\nPlayer 1 Wins!"
     	player2Win: .asciiz "\nPlayer 2 Wins!"
-    	instructions: .asciiz "Player 1 is X and Player 2 is O. X (Player 1) goes first. \nPlayers take turn placing X's and O's until they reach three in a row (horizontally, vertically, or diagonally) to win or fill all the spaced to draw. \nEnter a number 1-9 that corresponds to the position you wish to put your piece in."
+    	instructions: .asciiz "Player 1 is X and Player 2 is O. X (Player 1) goes first. \nPlayers take turn placing X's and O's until they reach three in a row (horizontally, vertically, or diagonally) to win or fill all the spaced to draw. \nEnter a number 1-9 that corresponds to the position you wish to put your piece in. \n"
     	prompt1: .asciiz "\nPlayer 1's move: " #tell player 1 it's their turn
     	prompt2: .asciiz "\nPlayer 2's move: " #tell player 2 it's their turn
     	playAgain: .asciiz "\nDo you wish to play again? (type 1 for yes, or 2 to exit): "
     	newline: .asciiz "\n"
+    	board_newline: .asciiz "\n ---+---+--- \n"
+    	board_splitor: .asciiz "|"
     	wrongPosition: .asciiz "\nSpot already taken. Please choose a different spot"
     	drawMsg: .asciiz "\n It's a Draw!"
     	invalidPlayAgain: .asciiz "\nInvalid: Please enter 1 to play again or enter 2 to quit."
@@ -147,11 +187,11 @@
 .text
 main:
 	#print instructions to users
-	li $v0, 4
-	la $a0, instructions
-	syscall
+	printStr instructions
 
-	#Print Skeleton Sample Board
+	printGrid
+
+	# Print board
 	printBoard
 
 	#Loop counter	

@@ -69,6 +69,7 @@
     	wrongPosition: .asciiz "\nSpot already taken. Please choose a different spot"
     	drawMsg: .asciiz "\n It's a Draw!"
     	invalidPlayAgain: .asciiz "\nInvalid: Please enter 1 to play again or enter 2 to quit."
+		invalidPosition: .asciiz "\nInvalid Position. Please choose a number from (1-9)"
 
 .text
 main:
@@ -78,7 +79,7 @@ main:
 	syscall
 
 	#Print Skeleton Sample Board
-	printBoard
+	#printBoard
 
 	#Loop counter	
 	li $s0, 0
@@ -103,6 +104,10 @@ player1:
 	syscall
 	move $t0, $v0
 	
+	#make user re input a number if number is under 1 or over 9
+	blt $t0, 1, invalidPosition1
+	bgt $t0, 9, invalidPosition1
+
 	#loads base address of array into $s0
 	la $s3, board
 	
@@ -152,6 +157,10 @@ player2:
 	syscall
 	move $t0, $v0
 	
+	#make user re input a number if number is under 1 or over 9
+	blt $t0, 1, invalidPosition2
+	bgt $t0, 9, invalidPosition2
+
 	#loads base address of array into $s0
 	la $s3, board
 	
@@ -182,6 +191,24 @@ player2:
 	#Player 1's turn
 	j player1
 
+
+#if player 1 inputs a number less than 1 or greater than 9
+invalidPosition1:
+	#print error message
+	li $v0, 4
+	la $a0, invalidPosition
+	syscall
+
+	j player1
+
+#if player 2 inputs a number less than 1 or greater than 9
+invalidPosition2:
+	#print error message
+	li $v0, 4
+	la $a0, invalidPosition
+	syscall
+
+	j player2
 
 wrongPosition1:
 	#inform user of error

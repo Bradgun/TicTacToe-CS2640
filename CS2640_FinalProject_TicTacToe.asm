@@ -66,7 +66,7 @@
     	prompt2: .asciiz "\nPlayer 2's move: " #tell player 2 it's their turn
     	playAgain: .asciiz "\nDo you wish to play again? (type 1 for yes, or 2 to exit): "
     	newline: .asciiz "\n"
-    	wrongPosition: .asciiz "\nSpot already taken. Please choose a different spot"
+    	wrongPosition: .asciiz "\nSpot already taken or invalid input. Please enter a different value"
     	drawMsg: .asciiz "\n It's a Draw!"
     	invalidPlayAgain: .asciiz "\nInvalid: Please enter 1 to play again or enter 2 to quit."
 		invalidPosition: .asciiz "\nInvalid Position. Please choose a number from (1-9)"
@@ -103,12 +103,12 @@ player1:
 	li $v0, 5
 	syscall
 	move $t0, $v0
-	
-	#make user re input a number if number is under 1 or over 9
-	blt $t0, 1, invalidPosition1
-	bgt $t0, 9, invalidPosition1
 
-	#loads base address of array into $s0
+	#check if input value is valid, 1-9
+	blt $t0, 1, wrongPosition1
+	bgt $t0, 9, wrongPosition1
+	
+	#loads base address of array into $s3
 	la $s3, board
 	
 	#calculate offset
@@ -156,12 +156,12 @@ player2:
 	li $v0, 5
 	syscall
 	move $t0, $v0
-	
-	#make user re input a number if number is under 1 or over 9
-	blt $t0, 1, invalidPosition2
-	bgt $t0, 9, invalidPosition2
 
-	#loads base address of array into $s0
+	#check if input value is valid, 1-9
+	blt $t0, 1, wrongPosition2
+	bgt $t0, 9, wrongPosition2
+	
+	#loads base address of array into $s3
 	la $s3, board
 	
 	#calculate offset

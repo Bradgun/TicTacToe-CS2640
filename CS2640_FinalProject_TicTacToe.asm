@@ -52,9 +52,61 @@
     	printStr newline
 .end_macro
 
+# Uses: $t0: Board, $t1: Winner, $t2: Winning Combinations, $t3: Number of Combinations
+.macro check_win
+	la $t0, board                     # Load address of the board
+    	la $t2, winning			      # Load address of winning combinations
+    	li $t3, 0
+	
+	check_loop:
+		
+		lw $t4, 0($t2)               # Load first index
+		mul $t8, $t4, 4              # Multiply index by 4 to get byte offset
+		add $t8, $t8, $t0            # Effective address: board + offset
+		lw $t5, 0($t8)               # Load board[first index]
+
+		lw $t4, 4($t2)               # Load second index
+		mul $t8, $t4, 4             
+		add $t8, $t8, $t0            
+		lw $t6, 0($t8)               # Load board[second index]
+
+		lw $t4, 8($t2)               # Load third index
+		mul $t8, $t4, 4              
+		add $t8, $t8, $t0            
+		lw $t7, 0($t8)               # Load board[third index]
+
+		
+		beqz $t5, no_match                # Skip if first is 0
+    		bne $t5, $t6, no_match            # Skip if not all equal
+    		bne $t6, $t7, no_match            # Skip if not all equal
+		b win
+		
+		no_match:
+			addi $t2, $t2, 12
+			addi $t3, $t3, 1
+			blt $t3, 8, check_loop
+			b check_break
+	win:
+		beq $t5, 1, p1win
+    		beq $t5, 2, p2win
+    	p1win:
+    		printStr player1Win
+    		printStr playAgain
+    		b exitMenu
+    	p2win:
+    		printStr player2Win
+    		printStr playAgain
+    		b exitMenu
+	
+	check_break:
+.end_macro
+	
 
 .data
 	board: .word 0, 0, 0, 0, 0, 0, 0, 0, 0 	# Reserve 9 * 4 bytes (1D array for 3x3 board) 0: Empty, 1: X, 2: O
+	winning:	.align 2
+         		.word 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 3, 6, 1, 4, 7, 2, 5, 8, 0, 4, 8, 2, 4, 6
+	num_combinations:   .word 8
     	Xmark: .asciiz " X "
     	Omark: .asciiz " O "
     	empty: .asciiz "   "
@@ -125,7 +177,7 @@ player1:
     	sw $s1, 0($s3)
     	printBoard
     
-    	#ADD WINNING CONDITION CHECK
+    	check_win()
     
 	#Increment loop counter
 	add $s0, $s0, 1
@@ -174,7 +226,7 @@ player2:
     	sw $s2, 0($s3)
     	printBoard
     
-    	#ADD WINNING CONDITION CHECK
+    	check_win()
     
 	#Increment loop counter
 	add $s0, $s0, 1
@@ -227,8 +279,20 @@ exitMenu:
 	j exitMenu
 
 resetGame:
-	
-	
+	# reset the board all to 0's
+	la $t0, board	# load the base adress of the board
+	li $t1, 0	# value to reset (0 represents empthy)
+	li $t2, 9	# the number of positions to reset
+
+resetLoop:
+	sw $t1, 0($t0)		# store 0 in the current position
+	addi $t0, $t0, 4	# move to the next position
+	subi $t2, $t2, 1	# decrement counter
+	bnez $t2, resetLoop	# continue doing this until all positions (aka 1-9) are reset
+
+	li $s0, 0	# reset the move counter (aka number of moves made) to 0
+
+	j player1	#resets the game, starts at the turn of player 1
 	
 
 #Exit Program

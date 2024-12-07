@@ -1,13 +1,15 @@
-#Bradley Gunawan, Elsa Zheng, Joe Jhenson Ramos, Kenneth Wang, Manuel Abanto
+# Bradley Gunawan, Elsa Zheng, Joe Jhenson Ramos, Kenneth Wang, Manuel Abanto
 #Group 4
-#CS 2640.02 with Professor Cariaga
-#Final Project: Tic Tac Toe
+# CS 2640.02 with Professor Cariaga
+# Final Project: Tic Tac Toe
 #Goal/Objective: Create a functional and good looking Tic Tac Toe game
 #Requirements: Good UI, update board with each move, winning/ending condition (3 in a row or draw),
-#For board, label each tile with numbers 1-9, and replace with X/O depending on user input
-#Alternating loop for player turns, check for correct input
-#For board, implement with a 1d array with 9 * 4 byte representing a 3x3 board
+# For board, label each tile with numbers 1-9, and replace with X/O depending on user input
+# Alternating loop for player turns, check for correct input
+# For board, implement with a 1d array with 9 * 4 byte representing a 3x3 board
 
+# void printStr(.asciiz str)
+# Designed for printing string from data section
 .macro printStr %str
         li $v0, 4
        	la $a0, %str
@@ -20,21 +22,26 @@
        	syscall
 .end_macro
 
+# Prints the current state of the Tic-Tac-Toe board in terms of X and O in a 3 x 3 grid. 
+# Iterates through the `board` array and prints the corresponding symbol for each element:
+# - Empty cell -> a placeholder (" ")
+# - Player X -> "X"
+# - Player O -> "O"
 .macro printBoard
-    	la $t0, board
-    	li $t1, 0
+    	la $t0, board                       # Load the base address of the board into $t0
+    	li $t1, 0                           # Initialize counter in $t1
    	loop:
-    		lw $t2, 0($t0)
-   		beq $t2, 0, printEmpty
-    		beq $t2, 1, printX
-    		beq $t2, 2, printO
+    		lw $t2, 0($t0)                  # Load the value of the current element into $t2
+   		beq $t2, 0, printEmpty              # If the value is 0, print " "
+    		beq $t2, 1, printX              # If the value is 1, print "X"
+    		beq $t2, 2, printO              # If the value is 2, print "O"
     		cont:
-    			addi $t0, $t0, 4
-    			addi $t1, $t1, 1
+    			addi $t0, $t0, 4            # Move to the next element (increment address by 4 bytes)
+    			addi $t1, $t1, 1            # Increment the counter
     			beq $t1, 3, printNewline
-    			beq $t1, 6, printNewline
-    			blt $t1, 9, loop
-    		b end
+    			beq $t1, 6, printNewline   
+    			blt $t1, 9, loop            # If there are more elements, repeat the loop
+    		b end                           # Exit after processing all cells
     			
     	printEmpty:
     		printStr empty
@@ -52,9 +59,76 @@
     	printStr newline
 .end_macro
 
+# Checks the Tic-Tac-Toe board from a winning combination.
+# It iterates over three elements in the predefined winning index combinations (`winning`) and compares the board values.
+# If all three board values in a combination match (and are non-zero), the macro identifies the winner:
+# - `1` for Player 1 (X)
+# - `2` for Player 2 (O)
+# If no winner is found, it exits without printing a winner.
+
+# Registers used:
+# $t0 - Base address of the board
+# $t2 - Base address of the winning combinations
+# $t3 - Counter for iterations (number of combinations checked)
+# $t4 - Holds the current index of winning combinations being processed
+# $t5 - Board value for the first index in a combination
+# $t6 - Board value for the second index in a combination
+# $t7 - Board value for the third index in a combination
+# $t8 - Temporary register for effective address calculation
+.macro check_win
+	la $t0, board                     # Load address of the board
+    	la $t2, winning			      # Load address of winning combinations
+    	li $t3, 0
+	
+	check_loop:
+		
+		lw $t4, 0($t2)               # Load first index
+		mul $t8, $t4, 4              # Multiply index by 4 to get byte offset
+		add $t8, $t8, $t0            # Effective address: board + offset
+		lw $t5, 0($t8)               # Load board[first index]
+
+		lw $t4, 4($t2)               # Load second index
+		mul $t8, $t4, 4             
+		add $t8, $t8, $t0            
+		lw $t6, 0($t8)               # Load board[second index]
+
+		lw $t4, 8($t2)               # Load third index
+		mul $t8, $t4, 4              
+		add $t8, $t8, $t0            
+		lw $t7, 0($t8)               # Load board[third index]
+
+		
+		beqz $t5, no_match                # Skip if first is 0
+    		bne $t5, $t6, no_match            # Skip if not all equal
+    		bne $t6, $t7, no_match            # Skip if not all equal
+		b win
+		
+		no_match:
+			addi $t2, $t2, 12           # Move to the next three combination
+			addi $t3, $t3, 1            # Increment combination counter
+			blt $t3, 8, check_loop      # Continue to loop if not finished
+			b check_break               # If all 8 combinations checked, exit the macro
+	win:
+		beq $t5, 1, p1win               # If the winning value is 1, Player 1 wins
+    		beq $t5, 2, p2win           # If the winning value is 2, Player 2 wins
+    	p1win:
+    		printStr player1Win
+    		printStr playAgain          # Prompt to play again
+    		b exitMenu
+    	p2win:
+    		printStr player2Win
+    		printStr playAgain          # Prompt to play again
+    		b exitMenu
+	
+	check_break:
+.end_macro
+	
 
 .data
 	board: .word 0, 0, 0, 0, 0, 0, 0, 0, 0 	# Reserve 9 * 4 bytes (1D array for 3x3 board) 0: Empty, 1: X, 2: O
+	winning:	.align 2
+         		.word 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 3, 6, 1, 4, 7, 2, 5, 8, 0, 4, 8, 2, 4, 6
+	num_combinations:   .word 8
     	Xmark: .asciiz " X "
     	Omark: .asciiz " O "
     	empty: .asciiz "   "
@@ -130,7 +204,7 @@ player1:
     	sw $s1, 0($s3)
     	printBoard
     
-    	#ADD WINNING CONDITION CHECK
+    	check_win()
     
 	#Increment loop counter
 	add $s0, $s0, 1
@@ -183,7 +257,7 @@ player2:
     	sw $s2, 0($s3)
     	printBoard
     
-    	#ADD WINNING CONDITION CHECK
+    	check_win()
     
 	#Increment loop counter
 	add $s0, $s0, 1
@@ -268,8 +342,13 @@ resetLoop:
 	li $s0, 0	# reset the move counter (aka number of moves made) to 0
 
 	j player1	#resets the game, starts at the turn of player 1
+	
 
 #Exit Program
 exit:
 	li $v0, 10
 	syscall
+	
+# 1 2 3
+# 4 5 6
+# 7 8 9

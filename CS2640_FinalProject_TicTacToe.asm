@@ -20,7 +20,7 @@
     	player2Win: .asciiz "Player 2 Wins!"
     	instructions: .asciiz "Player 1 is X and Player 2 is O. X (Player 1) goes first. Players take turn placing X's and O's until they reach three in a row (horizontally, vertically, or diagonally) to win or fill all the spaced to draw."
     	prompt1: .asciiz "Player 1's move" #tell player 1 it's their turn
-    	promtp2: .asciiz "Player 2's move" #tell player 2 it's their turn
+    	prompt2: .asciiz "Player 2's move" #tell player 2 it's their turn
     	playAgain: .asciiz "Do you wish to play again?"
     	newline: .asciiz "\n"
 

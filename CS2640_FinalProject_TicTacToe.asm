@@ -32,7 +32,7 @@
     	li $t1, 0                           # Initialize counter in $t1
    	loop:
     		lw $t2, 0($t0)                  # Load the value of the current element into $t2
-   		beq $t2, 0, printEmpty          # If the value is 0, print " "
+   		beqz $t2, printEmpty          	# If the value is 0, print " "
     		beq $t2, 1, printX              # If the value is 1, print "X"
     		beq $t2, 2, printO              # If the value is 2, print "O"
     		cont:
@@ -248,14 +248,10 @@ player1:
     
 	#Increment loop counter
 	add $s0, $s0, 1
-
-	### --- Draw condition will be implemented here --- ###
-	#total possible moves to be done
-	li $t0, 9
 	
-	#when total possible moves have been done and nobody wins, branch to drawCondition
+	#when total possible moves have been done (9) and nobody wins, branch to drawCondition
 	#and end the game			
-	beq $s0, $t0, drawCondition
+	beq $s0, 9, drawCondition
 	
 	#Player 2's turn
 	j player2
@@ -357,11 +353,8 @@ exitMenu:
 	move $t1, $v0
 	
 	#1 = yes, 2 = exit
-	li $t2, 1
-	beq $t1, $t2, resetGame
-	
-	li $t2, 2
-	beq $t1, $t2, exit
+	beq $t1, 1, resetGame
+	beq $t1, 2, exit
 	
 	#if input is invalid
 	printStr invalidPlayAgain
@@ -370,11 +363,10 @@ exitMenu:
 resetGame:
 	# reset the board all to 0's
 	la $t0, board	# load the base adress of the board
-	li $t1, 0	# value to reset (0 represents empthy)
 	li $t2, 9	# the number of positions to reset
 
 resetLoop:
-	sw $t1, 0($t0)		# store 0 in the current position
+	sw $zero, 0($t0)	# store 0 in the current position
 	addi $t0, $t0, 4	# move to the next position
 	subi $t2, $t2, 1	# decrement counter
 	bnez $t2, resetLoop	# continue doing this until all positions (aka 1-9) are reset
